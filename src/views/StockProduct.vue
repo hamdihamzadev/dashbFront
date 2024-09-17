@@ -1,6 +1,6 @@
 <template>
     <div class="stock">
-        <b-container>
+        <b-container fluid>
 
             <h1 class="col text-center fw-bolder">Stock Products</h1>
                
@@ -58,7 +58,9 @@
                     <b-form-group :label="textmodal" label-for="name-input" :invalid-feedback="msgInvalidInput"
                         :state="stateInputStock">
                         <b-form-input id="name-input" v-model="quantityModal" :state="stateInputStock" type="number"
-                            required></b-form-input>
+                            required>
+                       </b-form-input>
+                       
                     </b-form-group>
                 </form>
             </b-modal>
@@ -68,7 +70,7 @@
 </template>
 
 <script>
-    import axios from 'axios';
+  
     import {
         mapActions,
         mapState
@@ -116,7 +118,7 @@
                     id: '',
                     quantity: ''
                 },
-                quantityModal: ''
+                quantityModal: '',
             }
         },
 
@@ -124,7 +126,7 @@
 
             // STORE ALL PRODUCTS
             ...mapState('allProducts', {
-                allProducts: state => state.Products
+                allProducts: state => state.Products.filter(ele=> ele.isDeleted===false )
             }),
 
             createobjProducts() {
@@ -191,15 +193,6 @@
                 }
             },
 
-            searchprd(value) {
-                let Products = Array.from(this.$el.querySelectorAll('#stockProduct'))
-
-                Products.forEach(prd => {
-                    let nameProduct = prd.children[0].children[0].lastChild.firstChild.textContent.toLowerCase()
-                    prd.style.display = nameProduct.includes(value.toLowerCase()) ? '' : 'none'
-                })
-            },
-
             showModalAddStock(id, quantity) {
                 this.$bvModal.show('modal-Stock')
                 this.textmodal = 'Please add number quantity to your prdouct'
@@ -220,30 +213,28 @@
                 if (this.BtnModal === "Add") {
                     this.productUpdatedQuantity.quantity = parseInt(this.productUpdatedQuantity.quantity) + parseInt(
                         this.quantityModal)
-                    this.editQuantity(this.productUpdatedQuantity.quantity, this.productUpdatedQuantity.id)
+                        this.$store.dispatch('allProducts/ac_updateQuantityProduct',{id:this.productUpdatedQuantity.id,quantity:this.productUpdatedQuantity.quantity})
+                        window.location.reload()
                 } else if (this.BtnModal === "Substract") {
                     this.productUpdatedQuantity.quantity = parseInt(this.productUpdatedQuantity.quantity) - parseInt(
                         this.quantityModal)
-                    this.editQuantity(this.productUpdatedQuantity.quantity, this.productUpdatedQuantity.id)
+                        this.$store.dispatch('allProducts/ac_updateQuantityProduct',{id:this.productUpdatedQuantity.id,quantity:this.productUpdatedQuantity.quantity})
+                        window.location.reload()
                 }
             },
 
-            async editQuantity(quantity, id) {
-                try {
-                    const token = localStorage.getItem('token')
-                    const response = await axios.put(
-                        `${process.env.VUE_URL}/api/productQuantity/${id}`, {
-                            quantity: quantity
-                        }, {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        })
-                    console.log(response.data.message)
-                } catch (error) {
-                    console.log(`error the update is  : ${error}`)
-                }
+
+            
+            searchprd(value) {
+                let Products = Array.from(this.$el.querySelectorAll('#stockProduct'))
+
+                Products.forEach(prd => {
+                    let nameProduct = prd.children[0].children[0].lastChild.firstChild.textContent.toLowerCase()
+                    prd.style.display = nameProduct.includes(value.toLowerCase()) ? '' : 'none'
+                })
             },
+
+
 
             ...mapActions('allProducts', {
                 fetchProducts: 'ac_getProducts'

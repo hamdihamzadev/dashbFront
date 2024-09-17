@@ -1,6 +1,6 @@
 <template>
     <section class="addOrder pb-5">
-        <b-container>
+        <b-container fluid>
             <h1 class="text-center mb-3"> <strong>Add new order</strong> </h1>
             <form id="form" class="p-4">
                 <div class="row">
@@ -88,19 +88,21 @@ import { mapActions, mapState } from 'vuex';
                     customer: false,
                     product: false,
                 },
-                ProductSelectedText: ''
+                ProductSelectedText: '',
+                apiUrl:process.env.VUE_APP_API_URL
             }
         },
 
         computed: {
 
             ...mapState('allCustomers',{
-                AllCustomers:state=>state.customers.map(ele => {
+                AllCustomers:state=>state.customers
+                .filter(ele=> ele.isDeleted===false)
+                .map(ele => {
                         let obj = new Object
                         obj.text = ele.name + '-' + ele.gmail
                         obj.value = ele._id
                         return obj
-
                     })
             }),
 
@@ -170,11 +172,11 @@ import { mapActions, mapState } from 'vuex';
                     this.formOrder.date = this.caclDate
                     // this.postOrder()
                     let order=this.formOrder
-                    this.$store.dispatch('allOrders/ac_postOrder',order)
+                    this.$store.dispatch('allOrders/ac_addOrder',order)
                     this.sendConversionStatusOrders()
                     this.editQuantity()
                     this.RestValues()
-
+                   
                 }
 
             },
@@ -183,7 +185,7 @@ import { mapActions, mapState } from 'vuex';
                 try {
                     const token = localStorage.getItem('token')
                     const response = await axios.put(
-                        `${process.env.VUE_URL}/api/productQuantity/${this.formOrder.product}`, {
+                        `${this.apiUrl}/api/productQuantity/${this.formOrder.product}`, {
                             quantity: this.quantity
                         }, {
                             headers: {
@@ -199,7 +201,7 @@ import { mapActions, mapState } from 'vuex';
             async sendConversionStatusOrders(){
                 try{
                     const token=localStorage.getItem('token')
-                    const response=await axios.post(`${process.env.VUE_URL}/api/order/conversion`,{
+                    const response=await axios.post(`${this.apiUrl}/api/order/conversion`,{
                         status:'New',
                         date:this.caclDate
                     },{

@@ -1,6 +1,6 @@
 <template>
     <section class="addOrder pb-5">
-        <b-container>
+        <b-container fluid>
             <b-row class="mb-4 class-md-0" >
                 <b-col cols="12" md="6">
                     <h1 class="mb-3"> <strong>Conversion Rate</strong> </h1>

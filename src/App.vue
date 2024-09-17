@@ -9,9 +9,6 @@
     </div>
   </div>
 </template>
-<!-- 
-==> click ==> display none 
--->
 
 <script>
   import SideBar from './components/app/SideBar.vue'
@@ -33,7 +30,8 @@
     computed: {
       visibleHeaderAside() {
         let visible = false
-        this.$route.path === '/Login' || this.$route.path === '/' || this.$route.name === 'NotFound' ? visible = true :
+        const token=localStorage.getItem('token')
+        this.$route.path === '/Login' || this.$route.path === '/' || this.$route.name === 'NotFound' ||token===null ? visible = true :
           visible = false
         return visible
 
@@ -57,7 +55,21 @@
       },
       toggleMenuAsidePhone(){
         this.isHiddenAsidPhone=false
+      },
+
+      checkUserIsConnected(){
+        const token=localStorage.getItem('token')
+
+        if(token===null){
+          this.$route.path!=='/' && this.$route.path!=='/Login' ? this.$router.push('/Login') :''
+        }
+
       }
+    },
+
+    mounted(){
+     this.checkUserIsConnected()
+     
     }
 
   }

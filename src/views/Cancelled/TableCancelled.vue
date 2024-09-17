@@ -1,7 +1,7 @@
 <template>
 
     <div class="tabelCanceld">
-        <TableGlobal :orders="orders" :status="status" :fields="fields" />
+        <TableGlobal :orders="ordersCancelled" :status="status" :fields="fields" :date-filter-orders="date" />
     </div>
 
 </template>
@@ -82,25 +82,7 @@
         computed: {
             // STORE ALL ORDERS
             ...mapState('allOrders', {
-                allOrders: state => state.orders
-            }),
-
-            // RECENT DATE
-            recentDate() {
-                let day = new Date().getDate()
-                let month = new Date().getMonth() + 1
-                let year = new Date().getFullYear()
-
-                return {
-                    month,
-                    day,
-                    year
-                }
-            },
-
-            // ORDERS Cancelled
-            OrdersCancelled() {
-                let orders = this.allOrders
+                ordersCancelled: state => state.orders
                     .filter(ele => ele.statussuivi === 'Cancelled')
                     .map(ele => {
                         const objOrder = new Object
@@ -118,76 +100,7 @@
                         objOrder.id = ele._id
                         return objOrder
                     })
-                    .sort((a, b) => {
-                        return new Date(b.date) - new Date(a.date)
-                    })
-                return orders
-            },
-
-            // FILTER BY YEAR
-            filterByYear() {
-                let orders = []
-                if (this.date) {
-                    orders = this.OrdersCancelled.filter(ele => {
-                        return parseInt(ele.Date.split('-')[0], 10) === this.date.dateSelected
-                    })
-                }
-                return orders
-            },
-
-            // FILTER BY MONTH
-            filterByMonth() {
-                let orders = []
-                if (this.date) {
-                    orders = this.OrdersCancelled.filter(ele => {
-                        return parseInt(ele.Date.split('-')[1], 10) === this.date.dateSelected
-                    })
-                }
-                return orders
-            },
-
-            // FILTER BY DAY
-            filterByDay() {
-                let orders = []
-                if (this.date) {
-                    orders = this.OrdersCancelled.filter(ele => {
-                        return parseInt(ele.Date.split('-')[1], 10) === parseInt(this.date.dateSelected.split(
-                                '-')[1], 10) && // month
-                            parseInt(ele.Date.substring(7, 9), 10) === parseInt(this.date.dateSelected.split(
-                                '-')[2], 10) // day
-                    })
-                }
-                return orders
-            },
-
-            // FILTER BY TODAY
-            filterByToday() {
-                let orders = []
-                if (!this.date) {
-                    orders = this.OrdersCancelled.filter(ele=>{
-                        return  parseInt(ele.Date.split('-')[0],10) === this.recentDate.year &&
-                                parseInt(ele.Date.split('-')[1],10) === this.recentDate.month &&
-                                parseInt(ele.Date.substring(7,9), 10) === this.recentDate.day
-                    })
-                }
-                return orders
-            },
-
-            // FILTER ORDERS
-            orders(){
-                let orders=[]
-                if(this.date.type==='Month'){
-                    orders=this.filterByMonth
-                }else if(this.date.type==='Day'){
-                    orders=this.filterByDay
-                }else if (this.date.type==='Year'){
-                    orders=this.filterByYear
-                }else if(!this.date){
-                    orders=this.filterByToday
-                }
-                return orders
-
-            }
+            }),
 
         },
         methods: {

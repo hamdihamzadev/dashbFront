@@ -21,7 +21,7 @@
 
         computed: {
 
-            ...mapState('allOrders', {
+            ...mapState('conversion', {
                 conversionOrders: state => state.conversionOrders.New
             }),
             ...mapState('allOrders', {
@@ -170,7 +170,7 @@
         },
 
         methods: {
-            ...mapActions('allOrders', {
+            ...mapActions('conversion', {
                 fetchConversionOrders: 'ac_GetConversionOrders'
             }),
             ...mapActions('allOrders', {

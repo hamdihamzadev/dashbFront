@@ -1,6 +1,6 @@
 <template>
     <section class="listecustomers">
-        <b-container>
+        <b-container fluid>
             <h1 class="text-center fw-bolder mb-sm-4">List customers</h1>
 
             <b-row class="align-items-center justify-content-between">
@@ -196,7 +196,9 @@
 
         computed: {
             ...mapState('allCustomers', {
-                Allcustomers: state => state.customers.map(el => {
+                Allcustomers: state => state.customers
+                .filter(ele => ele.isDeleted===false)
+                .map(el => {
                     const obj = new Object
                     obj.Name = el.name
                     obj.Gender = el.gender
@@ -208,8 +210,6 @@
                     obj.Date = el.date
                     obj.id = el._id
                     return obj
-
-
                 })
             })
         },
@@ -270,15 +270,13 @@
                 if (this.error.adress === false && this.error.city === false && this.error.contry === false && this
                     .error.gender === false && this.error.gmail === false &&
                     this.error.name === false && this.error.phone === false) {
-                    this.$store.dispatch('allCustomers/ac_EditCustomer', {
+                    this.$store.dispatch('allCustomers/ac_updatCustomer', {
                         customer: this.formCustomer,
                         id: this.idCustomer
                     })
                     this.hideModal()
                 }
             },
-
-
 
 
             validationName() {

@@ -1,8 +1,8 @@
 <template>
     <section class="allproduts">
-        <b-container>
+        <b-container fluid>
             <div class="row">
-                <h1 class="col text-center fw-bolder">All products</h1>
+                <h1 class="col text-center fw-bolder">All products</h1>             
             </div>
             <div class="d-flex justify-content-between mt-5 flex-column flex-md-row gap-3">
                 <!----- SEARCH INPUT ----->
@@ -12,8 +12,7 @@
             </div>
 
             <!----- TABLE PRODUCT ----->
-            <b-table responsive striped hover :items="Products" :fields="fields" sort-icon-left class="mt-2" id="my-table">
-                <!--   :per-page="perPage" :current-page="currentPage" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" sort-icon-left -->
+            <b-table responsive striped hover :items="allProducts" :fields="fields" sort-icon-left :per-page="perPage" :current-page="currentPage"  class="mt-2" id="my-table">
 
                 <template #cell(Image)="image">
                     <b-img :src="image.value" alt="Responsive image" id="img-product"></b-img>
@@ -42,8 +41,8 @@
 
             </b-table>
 
-            <!-- <b-pagination v-model="currentPage" :total-rows="rows" :per-page="perPage" aria-controls="my-table">
-            </b-pagination> -->
+            <b-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" aria-controls="my-table">
+            </b-pagination>
 
         </b-container>
 
@@ -115,35 +114,48 @@
                 ],
                 Choose: 'Choose...',
                 nameInput: '',
-                perPage: 10,
-                currentPage: 1,
                 NbrPrdDelete: 0,
                 allPrdDelete: [],
+                totalRows: 1,
+                currentPage: 1,
+                perPage: 5,
             }
         },
 
         computed: {
+            ...mapState('allCategories', {
+                allcategories: state => state.categories.map(ele => {
+                    const obj = new Object
+                    obj.name = ele.name
+                    obj.id = ele._id
+                    return obj
+                })
+            }),
+
             ...mapState('allProducts', {
-                Products: state => state.Products
+                Products: state => state.Products  
+            }),
+
+            allProducts(){
+                return this.Products
                 .map(ele => {
                     const obj = new Object
                     obj.Image = ele.image
                     obj.Name = ele.name
                     obj.Price = ele.price
-                    obj.Category = {
-                        name: ele.category.name,
-                        id: ele.category._id
+                    obj.Category={
+                        id:this.allcategories.find(ctg=> ctg.id===ele.category) ? this.allcategories.find(ctg=> ctg.id===ele.category).id:'', 
+                        name:this.allcategories.find(ctg=> ctg.id===ele.category) ? this.allcategories.find(ctg=> ctg.id===ele.category).name:''
                     }
                     obj.Quantity = ele.quantity
                     obj.Date = ele.date
                     obj.Description = ele.description
-                    if(ele._id){
-                        obj.id = ele._id
-                    }
-                   
+                    obj.id = ele._id
+                    
                     return obj
                 })
-            }),
+            }
+           
         },
 
         methods: {
@@ -180,11 +192,16 @@
             ...mapActions('allProducts', {
                 fetchProducts: 'ac_getProducts'
             }),
+            ...mapActions("allCategories", {
+                fetchCategories: 'ac_getCategories'
+            })
 
         },
 
         mounted() {
             this.fetchProducts()
+            this.fetchCategories()
+            this.totalRows = this.allProducts.length
         }
 
     }

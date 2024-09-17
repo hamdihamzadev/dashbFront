@@ -1,19 +1,20 @@
 <template>
     <section class="allcategories">
-        <b-container>
+        <b-container fluid>
             <h1 class="text-center fw-bolder mb-4">All categories</h1>
-            <b-row class="align-items-center justify-content-between" >
+            <b-row class="align-items-center justify-content-between">
                 <!----- search category ----->
                 <b-col sm="6">
-                        <b-input-group size="sm">
-                            <b-form-input id="filter-input" v-model="filter" type="search" placeholder="Type to Search">
-                            </b-form-input>
-                        </b-input-group>
-                  
+                    <b-input-group size="sm">
+                        <b-form-input id="filter-input" v-model="filter" type="search" placeholder="Type to Search">
+                        </b-form-input>
+                    </b-input-group>
+
                 </b-col>
                 <!----- add category ----->
-                <b-col sm="4" >
-                    <b-button class="d-flex justify-content-center align-items-center " variant="primary" id="btn-addCtg" @click="btnaddCtg">
+                <b-col sm="4">
+                    <b-button class="d-flex justify-content-center align-items-center " variant="primary"
+                        id="btn-addCtg" @click="btnaddCtg">
                         <b-icon icon="plus" font-scale="2"></b-icon>Add category
                     </b-button>
                 </b-col>
@@ -33,7 +34,7 @@
                         </b-form-group>
 
                         <b-form-group class="col-12 mb-4" id="input-quantity" label="Image:" label-for="input-4">
-                            <b-form-file v-model="file2" class="mt-3" @change="onFileChange" plain></b-form-file>
+                            <b-form-file class="mt-3" @change="onFileChange" plain></b-form-file>
                             <img :src="imageUpload" alt="" srcset="" class="w-50 mt-2">
                         </b-form-group>
                     </div>
@@ -45,8 +46,8 @@
             </b-modal>
 
             <!----- TABLE PRODUCT ----->
-            <b-table responsive striped hover :filter="filter" :items="itemsCategories" :fields="fields" class="mt-2" sort-icon-left id="my-table">
-                <!-- :per-page="perPage" :current-page="currentPage" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" -->
+            <b-table responsive striped hover :filter="filter" :items="itemsCategories" :fields="fields" class="mt-2"
+                sort-icon-left id="my-table" :current-page="currentPage">
 
                 <template #cell(Image)="dataimage">
                     <b-img :src="dataimage.value" alt="Responsive image" id="img-ctg"></b-img>
@@ -67,7 +68,7 @@
                 </template>
             </b-table>
 
-            <b-pagination v-model="currentPage" :total-rows="rows" :per-page="perPage" aria-controls="my-table">
+            <b-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" aria-controls="my-table">
             </b-pagination>
 
         </b-container>
@@ -77,8 +78,11 @@
 
 
 <script>
-    import axios from 'axios';
-import { mapActions, mapState } from 'vuex';
+
+    import {
+        mapActions,
+        mapState
+    } from 'vuex';
     export default {
         name: "CategoryViews",
         data() {
@@ -116,32 +120,36 @@ import { mapActions, mapState } from 'vuex';
                     },
 
                 ],
-                filter:null,
+                filter: null,
                 imageShow: '',
                 imageUpload: '',
                 textBtnModal: '',
                 idCtgUpdDlt: '',
                 teets: '',
+                totalRows: 1,
+                currentPage: 1,
+                perPage: 5,
+                apiUrl: process.env.VUE_APP_API_URL,
 
             }
         },
 
-        computed:{
-            ...mapState('allProducts',{
-                allProducts:state=>state.Products
+        computed: {
+            ...mapState('allProducts', {
+                allProducts: state => state.Products
             }),
-            ...mapState('allCategories',{
-                allCategories:state=>state.categories
+            ...mapState('allCategories', {
+                allCategories: state => state.categories
             }),
 
-            itemsCategories(){
-               return this.allCategories 
-                .map(ele => {
+            itemsCategories() {
+                return this.allCategories
+                    .map(ele => {
                         const obj = new Object
                         obj.Image = ele.image
                         obj.Name = ele.name
-                        obj.Products = this.allProducts.filter(prd=>prd.category.name===ele.name).length
-                        obj.Date = ele.updatedAt.slice(0,10)
+                        obj.Products = this.allProducts.filter(prd => prd.category === ele._id).length
+                        obj.Date = ele.updatedAt.slice(0, 10)
                         obj.id = ele._id
                         return obj
                     })
@@ -160,34 +168,39 @@ import { mapActions, mapState } from 'vuex';
                 this.$bvModal.show('modalAddcategory')
             },
 
+            // action modal
             handleModal() {
                 if (this.textBtnModal === 'Update') {
-                    console.log('work update')
-                    this.editCtg(this.idCtgUpdDlt)
+                    const id = this.idCtgUpdDlt
+                    const formCategoryUpdate = new FormData()
+                    formCategoryUpdate.append('name', this.category.name)
+                    formCategoryUpdate.append('image', this.category.image)
+                    this.$store.dispatch('allCategories/ac_updateCategory',{id,formCategoryUpdate})
                     this.hideModal()
-                }else if(this.textBtnModal === 'Create'){
+                } else if (this.textBtnModal === 'Create') {
                     const formData = new FormData()
                     formData.append('name', this.category.name)
                     formData.append('image', this.category.image)
-                    this.$store.dispatch('allCategories/ac_addCategory',formData)
+                    this.$store.dispatch('allCategories/ac_addCategory', formData)
                     this.hideModal()
                 }
             },
-
+            
+            // action table
             handleActionChange(ev, data) {
                 this.idCtgUpdDlt = data.id
                 if (ev.target.value === 'edit') {
                     // change content modal
                     this.textBtnModal = 'Update'
-                    this.category.name=data.Name
-                    this.imageUpload=data.Image
+                    this.category.name = data.Name
+                    this.imageUpload = data.Image
                     this.$bvModal.show('modalAddcategory')
                 } else if (ev.target.value === 'delete') {
                     // delete category
                     const userConfirmed = window.confirm("Do you really want to delete this category ?");
-                    const id=this.idCtgUpdDlt
+                    const id = this.idCtgUpdDlt
                     if (userConfirmed) {
-                        this.$store.dispatch('allCategories/ac_deleteCategory',id)
+                        this.$store.dispatch('allCategories/ac_deleteCategory', id)
                     }
                 }
             },
@@ -200,28 +213,8 @@ import { mapActions, mapState } from 'vuex';
                 }
             },
 
-
-            async editCtg(id) {
-                try {
-                    const token = localStorage.getItem('token')
-                    const formData = new FormData()
-                    formData.append('name', this.category.name)
-                    formData.append('image', this.category.image)
-                    const response = await axios.put(`${process.env.VUE_URL}/api/category/${id}`, formData, {
-                        
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
-                    console.log(response.data.message)
-                } catch (error) {
-                    console.log('erreur is :', error)
-                }
-            },
-
-            ...mapActions('allProducts',{
-                fetchProducts:'ac_getProducts'
+            ...mapActions('allProducts', {
+                fetchProducts: 'ac_getProducts'
             }),
 
             ...mapActions("allCategories", {
@@ -233,6 +226,7 @@ import { mapActions, mapState } from 'vuex';
         mounted() {
             this.fetchProducts()
             this.fetchCategories()
+            this.totalRows = this.itemsCategories.length
         }
 
 
@@ -249,15 +243,15 @@ import { mapActions, mapState } from 'vuex';
         width: 141px;
     }
 
-    #filter-input{
+    #filter-input {
         padding-block: 22px;
     }
 
-    #filter-input::placeholder{
+    #filter-input::placeholder {
         color: rgb(184, 184, 184)
     }
 
-    #filter-input:active{
+    #filter-input:active {
         box-shadow: none;
         border-bottom: white;
 
@@ -267,14 +261,14 @@ import { mapActions, mapState } from 'vuex';
         width: 100%;
     }
 
-     /* Style for phone (less than de 767.98px) */
-     @media (max-width: 767.98px) {
+    /* Style for phone (less than de 767.98px) */
+    @media (max-width: 767.98px) {
         #btn-addCtg {
-        position: fixed;
-        bottom: 10px;
-        left: 50%;
-        transform: translate(-50%, -50%) translate(0px, 10px);
-        width: 95%;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translate(-50%, -50%) translate(0px, 10px);
+            width: 95%;
+        }
     }
-}
 </style>

@@ -1,6 +1,6 @@
 <template>
     <section id="section-topCustomer" class="pb-5">
-        <b-container class="p-4">
+        <b-container class="p-4" fluid>
             <b-row>
                 <b-col><h1 class="text-center fw-bolder mb-4">Top Customers</h1></b-col>
                 <!-- Filter customers -->

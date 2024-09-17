@@ -1,6 +1,6 @@
 <template>
     <section id="addCustomer">
-        <b-container>
+        <b-container fluid>
             <b-form id="form" class="p-4" @submit="addCustomer">
                 <h1 class="text-center mb-4"> <strong>Add customer</strong> </h1>
                 <div class="row">
@@ -110,16 +110,11 @@
                     gmail: false,
                     gender: false,
                     phone: false
-                }
+                },
+                apiUrl:process.env.VUE_APP_API_URL
             }
         },
 
-        computed:{
-            test(){
-                let number='68258661'
-                return number
-            }
-        },
 
         methods: {
 
@@ -147,7 +142,7 @@
                 if (this.error.adress === false && this.error.city === false && this.error.contry === false && this
                     .error.gender === false && this.error.gmail === false &&
                     this.error.name === false && this.error.phone === false) {
-                    this.createCustomer()
+                    this.$store.dispatch('allCustomers/ac_addCustomer',{customer:this.formCustomer})
                     this.formCustomer.adresse = this.formCustomer.city = this.formCustomer.contry = this.formCustomer
                     .gender = this.formCustomer.gmail = this.formCustomer.name = this.formCustomer.phone = ''
                 }
@@ -195,7 +190,7 @@
             async createCustomer() {
                 try {
                     const token = localStorage.getItem('token')
-                    const responsive = await axios.post(`${process.env.VUE_URL}/api/customers`,this.formCustomer, {
+                    const responsive = await axios.post(`${this.apiUrl}/api/customers`,this.formCustomer, {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }

@@ -1,4 +1,5 @@
 import axios from "axios"
+const apiUrl=process.env.VUE_APP_API_URL
 
 const state = {
     categories: [],
@@ -6,16 +7,23 @@ const state = {
 
 const mutations = {
 
+    m_addCategory(state,newcategory){
+        state.categories.push(newcategory)
+    },
+
     m_getCategories(state, categories) {
         state.categories = categories
     },
 
-    m_addCategory(state,category){
-        state.categories.push(category)
-    },
-
     m_deleteCategory(state,id){
         state.categories= state.categories.filter(ele=> ele._id!==id)
+    },
+
+    m_updateCategory(state,updatedCategory){
+        state.categories=state.categories.map(ctg=>{
+          return  ctg._id===updatedCategory._id ? updatedCategory : ctg
+        })
+    
     },
 
 }
@@ -27,7 +35,7 @@ const actions = {
     }) {
         try {
             const token = localStorage.getItem('token')
-            const response = await axios.get(`${process.env.VUE_URL}/api/category`, {
+            const response = await axios.get(`${apiUrl}/api/category`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -44,16 +52,15 @@ const actions = {
     async ac_addCategory({commit},category){
         try{
             const token = localStorage.getItem('token')
-            const response = await axios.post(`${process.env.VUE_URL}/api/category`,category, {
+            const response = await axios.post(`${apiUrl}/api/category`,category, {
                 
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 }
             })
-
-            console.log(response.data.message)
-            commit('m_addCategory',category)
+            const newcategory=response.data.category
+            commit('m_addCategory',newcategory)
 
         }
         catch(error){
@@ -61,15 +68,31 @@ const actions = {
         }
     },
 
+    async ac_updateCategory({commit},{id,formCategoryUpdate}) {
+        try {
+            const token = localStorage.getItem('token')
+           const response= await axios.put(`${apiUrl}/api/category/${id}`,formCategoryUpdate, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            const updatedCategory=response.data.categoryUpdate
+            commit('m_updateCategory', updatedCategory)
+
+        } catch (error) {
+            console.log('erreur is :', error)
+        }
+    },
+
     async ac_deleteCategory({commit},id){
         try{
-            const token = localStorage.getItem('token')
-            const response = await axios.delete(`${process.env.VUE_URL}/api/category/${id}`, {
+           const token = localStorage.getItem('token')
+            await axios.put(`${apiUrl}/api/category/${id}`,{isDeleted:true}, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-            console.log(response.data.message)
             commit('m_deleteCategory',id)
 
         }

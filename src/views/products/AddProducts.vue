@@ -135,6 +135,7 @@
 
             handleBtnModal() {
                 if (this.textbtnform === 'Edit') {
+                    // UPDATE PRODUCT
                     const formData = new FormData()
                     formData.append('name', this.formProduct.name)
                     formData.append('price', this.formProduct.price)
@@ -143,22 +144,22 @@
                     formData.append('category', this.formProduct.category)
                     formData.append('image', this.formProduct.image)
                     formData.append('date', this.date)
-                    this.$store.dispatch('allProducts/ac_editeProduct', {
+                    this.$store.dispatch('allProducts/ac_UpdateProduct', {
                         product: formData,
                         id: this.id
                     })
                     this.hideModal()
                 } else {
                     // CREATE PRODUCT
-                    const formData = new FormData()
-                    formData.append('name', this.formProduct.name)
-                    formData.append('price', this.formProduct.price)
-                    formData.append('quantity', this.formProduct.quantity)
-                    formData.append('description', this.formProduct.description)
-                    formData.append('category', this.formProduct.category)
-                    formData.append('image', this.formProduct.image)
-                    formData.append('date', this.date)
-                    this.$store.dispatch('allProducts/ac_addProduct', formData)
+                    const product = new FormData()
+                    product.append('name', this.formProduct.name)
+                    product.append('price', this.formProduct.price)
+                    product.append('quantity', this.formProduct.quantity)
+                    product.append('description', this.formProduct.description)
+                    product.append('category', this.formProduct.category)
+                    product.append('image', this.formProduct.image)
+                    product.append('date', this.date)
+                    this.$store.dispatch('allProducts/ac_addProduct',product)
                     this.hideModal()
                 }
             },

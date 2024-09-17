@@ -59,6 +59,7 @@
                     age: '',
                     email: '',
                     password: '',
+                    apiUrl:process.env.VUE_APP_API_URL
 
                 }
             }
@@ -67,7 +68,7 @@
         methods: {
             async signup() {
                 try {
-                    await axios.post(`${process.env.VUE_URL}/api/signup`, this.form)
+                    await axios.post(`${this.apiUrl}/api/signup`, this.form)
                     this.$router.push('/Login')
                 } catch (error) {
                     console.log('error is ', error)

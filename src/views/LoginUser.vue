@@ -27,7 +27,7 @@
         </b-form-group>
 
         <b-button type="submit" variant="light" class="fw-bold w-100" id="button">Login</b-button>
-        <p class="text-center mt-3">Not registered yet? <a href="" @click="signup">Sign up here</a></p>
+        <p class="text-center mt-3">Not registered yet? <a href="" @click="$router.push('/')">Sign up here</a></p>
 
       </b-form>
 
@@ -38,22 +38,25 @@
 </template>
 
 <script>
-  import axios from 'axios';
+  
+import axios from 'axios';
   export default {
     name: 'LoginUser',
     data() {
       return {
         formLogin: {
           email: '',
-          password: ''
-        }
+          password: '',
+        },
+         apiUrl:process.env.VUE_APP_API_URL,
+       
       }
     },
 
     methods: {
       async login() {
         try {
-          const response = await axios.post(`${process.env.VUE_URL}/api/login`, this.formLogin)
+          const response = await axios.post(`${this.apiUrl}/api/login`, this.formLogin)
           localStorage.setItem('token', response.data.token)
           this.$router.push('/DashBord')
         } catch (error) {
@@ -62,12 +65,9 @@
         }
       },
 
-      signup() {
-        this.$router.push('/')
-      }
-    }
+    },
 
-
+   
 
 
 

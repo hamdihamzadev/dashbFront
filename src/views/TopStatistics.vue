@@ -1,7 +1,6 @@
 <template>
     <section id="topStatistics">
-     
-        <b-container>
+        <b-container fluid>
             <div>
                 <b-nav tabs fill>
                     <b-nav-item @click="toggleActive(item.path)" :active="item.path===linkSelected" v-for="item in links" :key="item.id" :to="item.path" exact>{{ item.name }}</b-nav-item>

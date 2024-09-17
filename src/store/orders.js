@@ -1,15 +1,9 @@
 import axios from "axios"
+const apiUrl = process.env.VUE_APP_API_URL
 
 const state = {
     orders: [],
-    conversionOrders: {
-        New: [],
-        Confirmed: [],
-        Shipped: [],
-        Delivered: [],
-        Return: [],
-        Cancelled: []
-    }
+
 }
 
 const mutations = {
@@ -18,20 +12,24 @@ const mutations = {
         state.orders = orders
     },
 
-    m_postOrder(state,order){
-        state.orders.push(order)
+    m_addOrder(state, newOrder) {
+        state.orders.push(newOrder)
     },
 
-    m_GetConversionOrders(state, {
-        type,
-        orders
-    }) {
-        state.conversionOrders[type] = orders
+    m_deleteOrder(state, id) {
+        state.orders = state.orders.filter(ele => ele._id !== id)
     },
 
-    m_deleteOrder(state,id){
-        state.orders=state.orders.filter(ele => ele._id!==id )
+    m_changeStatusSuivi(state, id) {
+        state.orders = state.orders.filter(ele => ele._id !== id)
+    },
+
+    m_updateOrder(state,{id,quantity,total}){
+        state.orders= state.orders.map(ele=> ele._id === id ? {...ele,quantity:quantity,total:total}: ele)
+     
+     
     }
+
 
 }
 
@@ -43,7 +41,7 @@ const actions = {
     }) {
         try {
             const token = localStorage.getItem('token')
-            const response = await axios.get(`${process.env.VUE_URL}/api/orders`, {
+            const response = await axios.get(`${apiUrl}/api/orders`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -56,60 +54,80 @@ const actions = {
         }
     },
 
-    async ac_postOrder({commit},order) {
+    async ac_addOrder({
+        commit
+    }, order) {
         try {
             const token = localStorage.getItem('token')
-           const response= await axios.post(`${process.env.VUE_URL}/api/order`,order, {
+            const response = await axios.post(`${apiUrl}/api/order`, order, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-            console.log(order)
-            commit('m_postOrder',order)
-            console.log(response.data.message)
-           
-        
+            const newOrder = response.data.newOrder
+            commit('m_addOrder', newOrder)
+
         } catch (error) {
             console.log(`error is : ${error}`)
         }
     },
 
-    async ac_GetConversionOrders({
-        commit
-    }, type) {
+    async ac_updateOrder({commit},{id,quantity,total}) {
         try {
             const token = localStorage.getItem('token')
-            const response = await axios.get(`${process.env.VUE_URL}/api/orderConversionStatus`, {
+            await axios.put(`${apiUrl}/api/order/${id}`, {
+                quantity,
+                total
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-            const orders = response.data.conversionOrders.filter(ele => ele.status === type)
-            commit('m_GetConversionOrders', {
-                type,
-                orders
-            })
-
+            commit('m_updateOrder',{id,quantity,total})
         } catch (error) {
-            console.log(`error get GetConversionOrders is ${error}`)
+            console.log(`error is ${error}`)
         }
     },
 
-    async ac_deleteOrder({commit},id){
-        try{
-            const token=localStorage.getItem('token')
-            const response=await axios.delete(`${process.env.VUE_URL}/api/order/${id}`,{
+    async ac_deleteOrder({
+        commit
+    }, id) {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await axios.delete(`${apiUrl}/api/order/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
             console.log(response.data.message)
-            commit('m_deleteOrder',id)
-        }
-        catch(error){
+            commit('m_deleteOrder', id)
+        } catch (error) {
             console.log(`error delete order is ${error}`)
         }
-    }
+    },
+    async ac_changeStatusSuivi({
+        commit
+    }, {
+        statusSuivi,
+        id
+    }) {
+        try {
+            const token = localStorage.getItem('token')
+            await axios.put(`${apiUrl}/api/order/changeStutusSuivi/${id}`, {
+                statusSuivi,
+                statusTable: 'Not treat'
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            console.log(`this in store ${statusSuivi}`)
+            commit('m_changeStatusSuivi', id)
+
+        } catch (error) {
+            console.log(`error update status suivi is : ${error}`)
+        }
+    },
 
 }
 

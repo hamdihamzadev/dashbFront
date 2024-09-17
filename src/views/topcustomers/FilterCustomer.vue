@@ -1,21 +1,12 @@
 <template>
     <section>
-
         <!-- filter -->
         <b-row>
-            <b-col>
+            <b-col class="p-0">
                 <b-button @click="showModal" id="btn-filter" class="mb-4 ">
                     <b-icon icon="filter" aria-hidden="true"></b-icon>Filter
                 </b-button>
             </b-col>
-            <!-- <b-col>
-                <p class="mb-0 text-end">The top city have over <strong>{{ numberFilter }} {{ TypeFilter }} </strong>
-                    the
-                    month
-                    of {{ MonthSelecte }}
-                </p>
-            </b-col> -->
-
         </b-row>
 
         <b-modal id="modalFilter" title="Choose your filter">
@@ -56,7 +47,7 @@
                 </b-col>
 
                 <!-- sort filter -->
-                <b-col sm="12">
+                <b-col sm="12" v-show="filterSelcted!=='All'" >
 
                     <label for="" class="mb-2">Sort :</label>
                     <b-row>
@@ -116,7 +107,7 @@
 
                 ],
                 filterSelcted: 'All',
-                MonthSelecte: 'August',
+                MonthSelecte: '',
                 Allorders: '',
                 ordersAllCustomers: '',
                 isDisabled: true,
@@ -126,7 +117,7 @@
                 valueMax: 0,
                 resultFilterByOrders: '',
                 resultFilterBySales: '',
-
+                apiUrl:process.env.VUE_APP_API_URL
 
             }
         },
@@ -153,6 +144,8 @@
                 }
                 return reslt
             },
+
+
 
         },
 
@@ -181,6 +174,7 @@
             choosesortFilter(item) {
                 this.sortSelected = item
             },
+
             choosetypeFilter(type) {
                 this.filterSelcted = type
             },
@@ -195,6 +189,7 @@
                 this.$emit('send-customersfilter', {
                     customersFilter: this.customersFilter
                 })
+
 
             },
 
@@ -221,7 +216,7 @@
                 try {
                     let month = this.allMonths.indexOf(this.MonthSelecte) + 1
                     const token = localStorage.getItem('token')
-                    const response = await axios.get(`${process.env.VUE_URL}/api/getOrdersAllCustomer/${month}`, {
+                    const response = await axios.get(`${this.apiUrl}/api/getOrdersAllCustomer/${month}`, {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
@@ -235,12 +230,12 @@
             },
 
 
-
-
         },
 
         mounted() {
+            this.selectCurrentMonth()
             this.getOrdersForAnyCustomer()
+    
         }
 
     }

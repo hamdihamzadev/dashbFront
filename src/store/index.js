@@ -6,6 +6,7 @@ import allOrders from '../store/orders'
 import allProducts from '../store/products'
 import allCategories from '../store/categories'
 import allCustomers from '../store/customers'
+import conversion from './conversion';
 
 Vue.use(Vuex);
 
@@ -14,6 +15,7 @@ export default new Vuex.Store({
     allOrders,
     allProducts,
     allCategories,
-    allCustomers
+    allCustomers,
+    conversion
   }
 });
